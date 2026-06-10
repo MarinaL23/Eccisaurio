@@ -1,21 +1,40 @@
 
 #ifndef OBSTACLE_H
 #define OBSTACLE_H
+#include "raylib.h"
+
+enum ObstacleType { CACTUS_SMALL, CACTUS_LARGE, BIRD };
 
 class Obstacle {
 public:
     int x, y;
     int speedX, speedY;
     int width, height;
+    ObstacleType type;
 
-    Obstacle(int startX, int startY, int speed) {
+    Obstacle(int startX, int startY, int speed, ObstacleType oType) {
         x = startX;
-        y = startY;
         speedX = speed;
-        speedY = 0;
-        width = 30;
-        height = 50;
+        type = oType;
+        // por definir la visualizacion de los tipos de obstaculos
+        /*if (type == CACTUS_SMALL) {
+            width = 30; height = 40;
+            y = startY - height;
+        } 
+        else if (type == CACTUS_LARGE) {
+            width = 50; height = 70;
+            y = startY - height;
+        } 
+        else if (type == BIRD) {
+            width = 40; height = 30;
+            y = startY - 80;
+        }*/
     }
+
+    void update() {
+        x += speedX;
+    }
+
 };
 
 #endif //OBSTACLE_H
