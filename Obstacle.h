@@ -8,7 +8,7 @@ enum ObstacleType { CACTUS_SMALL, CACTUS_LARGE, BIRD };
 class Obstacle {
 public:
     int x, y;
-    int speedX, speedY;
+    int speedX;
     int width, height;
     ObstacleType type;
 
@@ -17,18 +17,21 @@ public:
         speedX = speed;
         type = oType;
         // por definir la visualizacion de los tipos de obstaculos
-        /*if (type == CACTUS_SMALL) {
-            width = 30; height = 40;
+        if (type == CACTUS_SMALL) {
+            width = 30;
+            height = 40;
             y = startY - height;
         } 
         else if (type == CACTUS_LARGE) {
-            width = 50; height = 70;
+            width = 50;
+            height = 70;
             y = startY - height;
         } 
         else if (type == BIRD) {
-            width = 40; height = 30;
-            y = startY - 80;
-        }*/
+            width = 50;
+            height = 35;
+            y = startY - 100;
+        }
     }
 
     void update() {
