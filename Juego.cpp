@@ -12,20 +12,20 @@ void Juego::run(){
     InitWindow(800, 400, "Eccisaurio");
     SetTargetFPS(60);
 
-    dinoTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/dino.png");
-    cactusSmallTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/cactus.png");
-    cactusLargeTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/cactus2.png");
-    birdTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/pterosaur.png");
-    potionLifeTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/potion1.png");
-    potionDoubleTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/potion2.png");
-    potionShieldTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/potion3.png");
+    dinoTex = LoadTexture("png/dino.png");
+    cactusSmallTex = LoadTexture("png/cactus.png");
+    cactusLargeTex = LoadTexture("png/cactus2.png");
+    birdTex = LoadTexture("png/pterosaur.png");
+    potionLifeTex = LoadTexture("png/potion1.png");
+    potionDoubleTex = LoadTexture("png/potion2.png");
+    potionShieldTex = LoadTexture("png/potion3.png");
     
-    scoreTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/score.png");
-    logoTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/name.png"); 
-    btnPlayTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/play.png");
-    heartTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/heart.png");
-    heart2Tex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/heart2.png");
-    sueloTex = LoadTexture("/home/marina/Desktop/Eccisaurio/png/road.png");
+    scoreTex = LoadTexture("png/score.png");
+    logoTex = LoadTexture("png/name.png"); 
+    btnPlayTex = LoadTexture("png/play.png");
+    heartTex = LoadTexture("png/heart.png");
+    heart2Tex = LoadTexture("png/heart2.png");
+    sueloTex = LoadTexture("png/road.png");
 
     botonPlay.width = btnPlayTex.width * 0.15f;
     botonPlay.height = btnPlayTex.height * 0.15f;
@@ -33,7 +33,7 @@ void Juego::run(){
     botonPlay.y = 250 - (botonPlay.height / 2);
 
     if(obstacles.empty()) {
-        obstacles.push_back(Obstacle(650, GROUND_LEVEL - 60, gameSpeed, CACTUS_SMALL));
+        obstacles.push_back(Obstacle(650, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
     }
 
     while (!WindowShouldClose() && isRunning) {
@@ -83,12 +83,34 @@ void Juego::update(){
 
         for (size_t i = 0; i < obstacles.size(); i++) {
             obstacles[i].update();
+
+            if (checkCollision(tRex, obstacles[i])) {
+                lives--;
+                obstacles.erase(obstacles.begin() + i);
+
+                if (lives <= 0) {
+                    gameOver();
+                } else {
+                    obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
+                }
+
+                break;
+            }
+            if (obstacles[i].x + obstacles[i].width < 0) {
+                obstacles.erase(obstacles.begin() + i);
+                obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
+                score += 10;
+                break;
+            }
         }
     }
 }
 
 bool Juego::checkCollision(const Dino& d, const Obstacle& o){
-    return false; 
+    Rectangle dino = {d.x, d.y, d.width, d.height};
+    Rectangle obstaculo = {o.x, o.y, o.width, o.height};
+
+    return CheckCollisionRecs(dino, obstaculo);
 }
 void Juego::render(){
     BeginDrawing();
@@ -99,12 +121,12 @@ void Juego::render(){
         
         float dinoW = dinoTex.width * 0.08f;
         float dinoH = dinoTex.height * 0.08f;
-        DibujarRedimensionado(dinoTex, 50, GROUND_LEVEL - 50, dinoW, dinoH, WHITE); 
+        DibujarRedimensionado(dinoTex, tRex.x, tRex.y, dinoW, dinoH, WHITE);
 
         float cactusW = cactusSmallTex.width * 0.07f;
         float cactusH = cactusSmallTex.height * 0.07f;
         for (size_t i = 0; i < obstacles.size(); i++) {
-            DibujarRedimensionado(cactusSmallTex, 650, GROUND_LEVEL - 30, cactusW, cactusH, WHITE);
+            DibujarRedimensionado(cactusSmallTex, obstacles[i].x, obstacles[i].y, cactusW, cactusH, WHITE);
         }
 
         float scoreW = scoreTex.width * 0.15f;
@@ -131,4 +153,12 @@ void Juego::render(){
         }
 
     EndDrawing();
+}
+
+void Juego::gameOver() {
+    juegoIniciado = false;
+    lives = 3;
+    score = 0;
+    obstacles.clear();
+    obstacles.push_back(Obstacle(650, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
 }
