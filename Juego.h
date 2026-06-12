@@ -6,11 +6,15 @@
 #include "raylib.h"
 #include <vector>
 
+// Clase principal del videojuego. Se encarga de controlar la lógica general,
+// actualización de elementos y renderizado
 class Juego {
-    private:
+private:
     Dino tRex;
+
     std::vector<Obstacle> obstacles;
     std::vector<Potion> potions;
+
     int score;
     int lives;
     int gameSpeed;
@@ -18,6 +22,7 @@ class Juego {
 
     bool isRunning;
     bool juegoIniciado;
+
     float sueloX = 0.0f;
     const int GRAVITY = 1;
     const int GROUND_LEVEL = 300;
@@ -43,6 +48,7 @@ class Juego {
     int currentDinoSkin = 0;
 
 public:
+    // Constructor que inicializa los valores básicos del juego
     Juego() {
         score = 0;
         lives = 3;
@@ -51,14 +57,25 @@ public:
         juegoIniciado = false;
         currentDinoSkin = 0;
         botonPlay = { 0, 0, 0, 0 };
-        for(int i = 0; i < 5; i++) ranking[i] = 0;
+
+        for(int i = 0; i < 5; i++) {
+            ranking[i] = 0;
+        }
     }
+
+    // Ejecuta el ciclo principal del videojuego
     void run();
+
 private:
+    // Procesa las entradas del usuario
     void processInput();
+    // Actualiza la lógica de todos los elementos del juego
     void update();
+    // Verifica si existe colisión entre el dinosaurio y un obstáculo
     bool checkCollision(const Dino& d, const Obstacle& o);
+    // Dibuja todos los elementos en pantalla
     void render();
+    // Reinicia la partida cuando el jugador pierde todas las vidas
     void gameOver();
 };
 

@@ -1,6 +1,7 @@
 #include "Juego.h"
 #include "Obstacle.h"
 
+// Función auxiliar para dibujar una textura con el tamaño que se indique
 void DibujarRedimensionado(Texture2D textura, float xDestino, float yDestino, float anchoDestino, float altoDestino, Color tinte) {
     Rectangle source = { 0.0f, 0.0f, (float)textura.width, (float)textura.height };
     Rectangle dest = { xDestino, yDestino, anchoDestino, altoDestino };
@@ -8,10 +9,12 @@ void DibujarRedimensionado(Texture2D textura, float xDestino, float yDestino, fl
     DrawTexturePro(textura, source, dest, origin, 0.0f, tinte);
 }
 
+// Inicializa la ventana, carga las texturas y ejecuta el ciclo principal del juego
 void Juego::run(){
     InitWindow(800, 400, "Eccisaurio");
     SetTargetFPS(60);
 
+    // Carga las texturas del personaje, obstáculos, pociones e interfaz
     dinoTex = LoadTexture("png/dino.png");
     cactusSmallTex = LoadTexture("png/cactus.png");
     cactusLargeTex = LoadTexture("png/cactus2.png");
@@ -27,21 +30,25 @@ void Juego::run(){
     heart2Tex = LoadTexture("png/heart2.png");
     sueloTex = LoadTexture("png/road.png");
 
+    // Se ajusta el tamaño y la posición del botón de inicio
     botonPlay.width = btnPlayTex.width * 0.15f;
     botonPlay.height = btnPlayTex.height * 0.15f;
     botonPlay.x = 400 - (botonPlay.width / 2);
     botonPlay.y = 250 - (botonPlay.height / 2);
 
+    // Se crea el primer obstáculo al iniciar el juego
     if(obstacles.empty()) {
         obstacles.push_back(Obstacle(650, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
     }
 
+    // Ciclo principal del videojuego
     while (!WindowShouldClose() && isRunning) {
         processInput();
         update();
         render();
     }
 
+    // Se liberan las texturas antes de cerrar el programa
     UnloadTexture(heartTex);
     UnloadTexture(heart2Tex);
     UnloadTexture(sueloTex);
@@ -58,24 +65,30 @@ void Juego::run(){
     CloseWindow();
 }
 
+// Procesa las entradas del usuario, tanto en el menú como durante la partida
 void Juego::processInput(){
     if (!juegoIniciado) {
         Vector2 mousePos = GetMousePosition();
+
+        // Inicia el juego con clic en Play o con Enter
         if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePos, botonPlay))
             || IsKeyPressed(KEY_ENTER)) {
             juegoIniciado = true;
         }
     } else {
+        // Hace saltar al dinosaurio durante la partida
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP)) {
             tRex.jump();
         }
     }
 }
 
+// Actualiza la lógica del juego, dinosaurio, suelo, obstáculos y colisiones
 void Juego::update(){
     if (juegoIniciado) {
         tRex.update(GRAVITY, GROUND_LEVEL);
 
+        // Movimiento del suelo para simular desplazamiento
         sueloX += gameSpeed; 
         if (sueloX <= -800) { 
             sueloX = 0;
@@ -84,6 +97,7 @@ void Juego::update(){
         for (size_t i = 0; i < obstacles.size(); i++) {
             obstacles[i].update();
 
+            // Si el dinosaurio choca, pierde una vida
             if (checkCollision(tRex, obstacles[i])) {
                 lives--;
                 obstacles.erase(obstacles.begin() + i);
@@ -96,6 +110,8 @@ void Juego::update(){
 
                 break;
             }
+
+            // Si el obstáculo sale de pantalla, se elimina y se genera otro
             if (obstacles[i].x + obstacles[i].width < 0) {
                 obstacles.erase(obstacles.begin() + i);
                 obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
@@ -106,34 +122,42 @@ void Juego::update(){
     }
 }
 
+// Verifica si el dinosaurio y un obstáculo se están tocando
 bool Juego::checkCollision(const Dino& d, const Obstacle& o){
-    Rectangle dino = {d.x, d.y, d.width, d.height};
-    Rectangle obstaculo = {o.x, o.y, o.width, o.height};
+    Rectangle dino = {(float)d.x, (float)d.y, (float)d.width, (float)d.height};
+    Rectangle obstaculo = {(float)o.x, (float)o.y, (float)o.width, (float)o.height};
 
     return CheckCollisionRecs(dino, obstaculo);
 }
+
+// Dibuja todos los elementos del juego en pantalla
 void Juego::render(){
     BeginDrawing();
         ClearBackground(RAYWHITE); 
 
+        // Dibujo del suelo duplicado para dar efecto de movimiento continuo
         DibujarRedimensionado(sueloTex, sueloX, GROUND_LEVEL, 800, 40, WHITE);
         DibujarRedimensionado(sueloTex, sueloX + 800, GROUND_LEVEL, 800, 40, WHITE);
         
+        // Dibujo del dinosaurio
         float dinoW = dinoTex.width * 0.08f;
         float dinoH = dinoTex.height * 0.08f;
         DibujarRedimensionado(dinoTex, tRex.x, tRex.y, dinoW, dinoH, WHITE);
 
+        // Dibujo de los obstáculos
         float cactusW = cactusSmallTex.width * 0.07f;
         float cactusH = cactusSmallTex.height * 0.07f;
         for (size_t i = 0; i < obstacles.size(); i++) {
             DibujarRedimensionado(cactusSmallTex, obstacles[i].x, obstacles[i].y, cactusW, cactusH, WHITE);
         }
 
+        // Dibujo del puntaje
         float scoreW = scoreTex.width * 0.15f;
         float scoreH = scoreTex.height * 0.15f;
         DibujarRedimensionado(scoreTex, 500, -30, scoreW, scoreH, WHITE);
         DrawText(TextFormat("%05d", score), 690, 37, 25, DARKGRAY);
 
+        // Dibujo de las vidas
         float heartW = heartTex.width * 0.08f;
         float heartH = heartTex.height * 0.08f;
         for (int i = 0; i < 3; i++) {
@@ -144,6 +168,7 @@ void Juego::render(){
             }
         }
         
+        // Pantalla inicial del juego
         if (!juegoIniciado) {
             float factorEscala = 0.25f; 
             float logoW = logoTex.width * factorEscala;
@@ -155,6 +180,7 @@ void Juego::render(){
     EndDrawing();
 }
 
+// Reinicia los valores principales cuando el jugador pierde todas las vidas
 void Juego::gameOver() {
     juegoIniciado = false;
     lives = 3;
