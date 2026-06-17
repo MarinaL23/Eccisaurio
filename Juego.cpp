@@ -1,5 +1,7 @@
 #include "Juego.h"
 #include "Obstacle.h"
+#include "FuncionesEnsamblador.h"
+
 
 // Función auxiliar para dibujar una textura con el tamaño que se indique
 void DibujarRedimensionado(Texture2D textura, float xDestino, float yDestino, float anchoDestino, float altoDestino, Color tinte) {
@@ -111,8 +113,7 @@ void Juego::update(){
 
             // Si el dinosaurio choca, pierde una vida
             if (checkCollision(tRex, obstacles[i])) {
-                lives--;
-                obstacles.erase(obstacles.begin() + i);
+                lives = actualizarVidas(lives, -1);                obstacles.erase(obstacles.begin() + i);
 
                 if (lives <= 0) {
                     gameOver();
@@ -133,7 +134,7 @@ void Juego::update(){
                     // Creamos la poción (debes tener un vector de pociones declarado en Juego.h)
                     potions.push_back(Potion(950, GROUND_LEVEL - 100, gameSpeed, (PotionType)tipoPocion)); 
                 }
-                score += 10;
+                score = actualizarPuntuacion(score, 10);
                 break;
             }
             for (size_t i = 0; i < potions.size(); i++) {
@@ -150,7 +151,7 @@ void Juego::update(){
             { (float)potions[i].x, (float)potions[i].y, (float)potions[i].width, (float)potions[i].height })) {
         
         if (potions[i].type == LIVES) {
-            if (lives < 3) lives++; // Sumar vida
+            if (lives < 3) lives = actualizarVidas(lives, 1);// Sumar vida
         } 
         else if (potions[i].type == DOUBLE) {
             // duplicar la puntuacion en ese periodo

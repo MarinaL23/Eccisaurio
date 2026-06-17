@@ -14,7 +14,9 @@ La lógica principal del videojuego se desarrolla en C++, la interfaz gráfica s
 ## Instrucciones de compilación
 Para esta segunda iteración únicamente se está utilizando C++, por lo que el proyecto puede compilarse ejecutando el siguiente comando desde la carpeta raíz de EcciSaurio:
 
-`g++ main.cpp Juego.cpp -o Eccisaurio -lraylib`
+`nasm -f elf64 Funciones.asm -o Funciones.o`
+
+`g++ main.cpp Juego.cpp Funciones.o -o Eccisaurio -lraylib`
 
 
 ## Instrucciones de ejecución
