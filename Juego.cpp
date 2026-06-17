@@ -128,12 +128,40 @@ void Juego::update(){
                 // Obstaculos aleatorios
                 int randomTipo = GetRandomValue(0, 2);
                 obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, (ObstacleType)randomTipo));
-                
+                if (GetRandomValue(1, 10) <= 3) { 
+                    int tipoPocion = GetRandomValue(1, 3);
+                    // Creamos la poción (debes tener un vector de pociones declarado en Juego.h)
+                    potions.push_back(Potion(950, GROUND_LEVEL - 100, gameSpeed, (PotionType)tipoPocion)); 
+                }
                 score += 10;
                 break;
             }
+            for (size_t i = 0; i < potions.size(); i++) {
+                potions[i].update();
+                if (potions[i].x + potions[i].width < 0) {
+                    potions.erase(potions.begin() + i);
+                    i--;
+                }
+            }
         }
     }
+    for (size_t i = 0; i < potions.size(); i++) {
+    if (CheckCollisionRecs({ (float)tRex.x, (float)tRex.y, (float)tRex.width, (float)tRex.height }, 
+            { (float)potions[i].x, (float)potions[i].y, (float)potions[i].width, (float)potions[i].height })) {
+        
+        if (potions[i].type == LIVES) {
+            if (lives < 3) lives++; // Sumar vida
+        } 
+        else if (potions[i].type == DOUBLE) {
+            // duplicar la puntuacion en ese periodo
+        } 
+        else if (potions[i].type == SHIELD) {
+            // efecto del escudo como por 5 segundos
+        }
+        potions.erase(potions.begin() + i);
+        i--;
+    }
+}
 }
 
 // Verifica si el dinosaurio y un obstáculo se están tocando
@@ -182,6 +210,16 @@ void Juego::render(){
         }
         DibujarRedimensionado(texActual, obstacles[i].x, obstacles[i].y,
                 texActual.width * escala,texActual.height * escala, WHITE);
+    }
+
+    for (const auto& p : potions) {
+        Texture2D texActual;
+        switch (p.type) {
+            case LIVES:  texActual = potionLifeTex; break;
+            case DOUBLE: texActual = potionDoubleTex; break;
+            case SHIELD: texActual = potionShieldTex; break;
+        }
+        DibujarRedimensionado(texActual, (float)p.x, (float)p.y, (float)p.width, (float)p.height, WHITE);
     }
 
     // Dibujo del puntaje
