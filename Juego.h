@@ -19,6 +19,7 @@ private:
     int lives;
     int gameSpeed;
     int ranking[5];
+    int frameCounter = 0;
 
     bool isRunning;
     bool juegoIniciado;
@@ -27,8 +28,12 @@ private:
     const int GRAVITY = 1;
     const int GROUND_LEVEL = 300;
 
-    Texture2D dinoTextures[6];
+    Texture2D dinoCrouchTex;
+    Texture2D dinoDeathTex;
     Texture2D dinoTex;
+    Texture2D dino2Tex;
+    Texture2D dinoUpTex;
+    Texture2D dinoUp2Tex;
     Texture2D cactusSmallTex;
     Texture2D cactusLargeTex;
     Texture2D birdTex;

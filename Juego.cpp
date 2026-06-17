@@ -16,6 +16,11 @@ void Juego::run(){
 
     // Carga las texturas del personaje, obstáculos, pociones e interfaz
     dinoTex = LoadTexture("png/dino.png");
+    dinoCrouchTex = LoadTexture("png/agacharse.png");
+    dinoDeathTex = LoadTexture("png/died.png");
+    dino2Tex = LoadTexture("png/dino2.png");
+    dinoUpTex = LoadTexture("png/dinoup.png");
+    dinoUp2Tex = LoadTexture("png/dinoup2.png");
     cactusSmallTex = LoadTexture("png/cactus.png");
     cactusLargeTex = LoadTexture("png/cactus2.png");
     birdTex = LoadTexture("png/pterosaur.png");
@@ -80,12 +85,19 @@ void Juego::processInput(){
         if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP)) {
             tRex.jump();
         }
+        // Hace que el dinosaurio se agache
+        if (IsKeyDown(KEY_DOWN)) {
+            tRex.crouch(true);
+        } else {
+            tRex.crouch(false);
+        }
     }
 }
 
 // Actualiza la lógica del juego, dinosaurio, suelo, obstáculos y colisiones
 void Juego::update(){
     if (juegoIniciado) {
+        frameCounter++;
         tRex.update(GRAVITY, GROUND_LEVEL);
 
         // Movimiento del suelo para simular desplazamiento
@@ -110,11 +122,13 @@ void Juego::update(){
 
                 break;
             }
-
             // Si el obstáculo sale de pantalla, se elimina y se genera otro
             if (obstacles[i].x + obstacles[i].width < 0) {
                 obstacles.erase(obstacles.begin() + i);
-                obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
+                // Obstaculos aleatorios
+                int randomTipo = GetRandomValue(0, 2);
+                obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, (ObstacleType)randomTipo));
+                
                 score += 10;
                 break;
             }
@@ -133,49 +147,68 @@ bool Juego::checkCollision(const Dino& d, const Obstacle& o){
 // Dibuja todos los elementos del juego en pantalla
 void Juego::render(){
     BeginDrawing();
-        ClearBackground(RAYWHITE); 
+    ClearBackground(RAYWHITE); 
 
-        // Dibujo del suelo duplicado para dar efecto de movimiento continuo
-        DibujarRedimensionado(sueloTex, sueloX, GROUND_LEVEL, 800, 40, WHITE);
-        DibujarRedimensionado(sueloTex, sueloX + 800, GROUND_LEVEL, 800, 40, WHITE);
+    // Dibujo del suelo duplicado para dar efecto de movimiento continuo
+    DibujarRedimensionado(sueloTex, sueloX, GROUND_LEVEL, 800, 40, WHITE);
+    DibujarRedimensionado(sueloTex, sueloX + 800, GROUND_LEVEL, 800, 40, WHITE);
         
-        // Dibujo del dinosaurio
-        float dinoW = dinoTex.width * 0.08f;
-        float dinoH = dinoTex.height * 0.08f;
-        DibujarRedimensionado(dinoTex, tRex.x, tRex.y, dinoW, dinoH, WHITE);
-
-        // Dibujo de los obstáculos
-        float cactusW = cactusSmallTex.width * 0.07f;
-        float cactusH = cactusSmallTex.height * 0.07f;
-        for (size_t i = 0; i < obstacles.size(); i++) {
-            DibujarRedimensionado(cactusSmallTex, obstacles[i].x, obstacles[i].y, cactusW, cactusH, WHITE);
+    // Dibujo del dinosaurio
+    float dinoW = dinoTex.width * 0.08f;
+    float dinoH = dinoTex.height * 0.08f;
+    if (tRex.isCrouching) {
+        // Aquí cargarías o usarías la textura agachada (dinoCrouchTex)
+        DibujarRedimensionado(dinoCrouchTex, tRex.x, tRex.y, dinoW, dinoH - 12, WHITE);
+    } else {
+        // Dibujamos la textura normal, hace que los pies se muevan
+        if ((frameCounter / 10) % 2 == 0) {
+            DibujarRedimensionado(dinoTex, tRex.x, tRex.y, dinoW, dinoH + 10, WHITE);
+        } else {
+            DibujarRedimensionado(dino2Tex, tRex.x, tRex.y, dinoW, dinoH + 10, WHITE);
         }
-
-        // Dibujo del puntaje
-        float scoreW = scoreTex.width * 0.15f;
-        float scoreH = scoreTex.height * 0.15f;
-        DibujarRedimensionado(scoreTex, 500, -30, scoreW, scoreH, WHITE);
-        DrawText(TextFormat("%05d", score), 690, 37, 25, DARKGRAY);
-
-        // Dibujo de las vidas
-        float heartW = heartTex.width * 0.08f;
-        float heartH = heartTex.height * 0.08f;
-        for (int i = 0; i < 3; i++) {
-            if (i < lives) {
-                DibujarRedimensionado(heartTex, -5 + (i * 30), 5, heartW, heartH, WHITE);
-            } else {
-                DibujarRedimensionado(heart2Tex, -5 + (i * 30), 5, heartW, heartH, WHITE);
-            }
+    }
+    
+    // Dibujo de los obstáculos
+    float cactusW = cactusSmallTex.width * 0.07f;
+    float cactusH = cactusSmallTex.height * 0.07f;
+    for (size_t i = 0; i < obstacles.size(); i++) {
+        Texture2D texActual;
+        float escala = 0.07f;
+        // Seleccionar textura y ajustar tamaño según el tipo
+        switch (obstacles[i].type) {
+            case CACTUS_SMALL: texActual = cactusSmallTex; break;
+            case CACTUS_LARGE: texActual = cactusLargeTex; break;
+            case BIRD: texActual = birdTex; break;
         }
+        DibujarRedimensionado(texActual, obstacles[i].x, obstacles[i].y,
+                texActual.width * escala,texActual.height * escala, WHITE);
+    }
+
+    // Dibujo del puntaje
+    float scoreW = scoreTex.width * 0.15f;
+    float scoreH = scoreTex.height * 0.15f;
+    DibujarRedimensionado(scoreTex, 500, -30, scoreW, scoreH, WHITE);
+    DrawText(TextFormat("%05d", score), 690, 37, 25, DARKGRAY);
+
+    // Dibujo de las vidas
+    float heartW = heartTex.width * 0.08f;
+    float heartH = heartTex.height * 0.08f;
+    for (int i = 0; i < 3; i++) {
+        if (i < lives) {
+            DibujarRedimensionado(heartTex, -5 + (i * 30), 5, heartW, heartH, WHITE);
+        } else {
+            DibujarRedimensionado(heart2Tex, -5 + (i * 30), 5, heartW, heartH, WHITE);
+        }
+    }
         
-        // Pantalla inicial del juego
-        if (!juegoIniciado) {
-            float factorEscala = 0.25f; 
-            float logoW = logoTex.width * factorEscala;
-            float logoH = logoTex.height * factorEscala;
-            DibujarRedimensionado(logoTex, 400 - (logoW / 2), 4, logoW, logoH, WHITE);
-            DibujarRedimensionado(btnPlayTex, botonPlay.x, botonPlay.y, botonPlay.width, botonPlay.height, WHITE);
-        }
+    // Pantalla inicial del juego
+    if (!juegoIniciado) {
+        float factorEscala = 0.25f; 
+        float logoW = logoTex.width * factorEscala;
+        float logoH = logoTex.height * factorEscala;
+        DibujarRedimensionado(logoTex, 400 - (logoW / 2), 4, logoW, logoH, WHITE);
+        DibujarRedimensionado(btnPlayTex, botonPlay.x, botonPlay.y, botonPlay.width, botonPlay.height, WHITE);
+    }
 
     EndDrawing();
 }

@@ -24,17 +24,17 @@ public:
         // Define el tamaño y la posición inicial según el tipo.
         if (type == CACTUS_SMALL) {
             width = 30;
-            height = 40;
+            height = 30;
             y = startY - height;
         } 
         else if (type == CACTUS_LARGE) {
             width = 50;
-            height = 70;
+            height = 30;
             y = startY - height;
         } 
         else if (type == BIRD) {
             width = 50;
-            height = 35;
+            height = 30;
             y = startY - 100;
         }
     }
