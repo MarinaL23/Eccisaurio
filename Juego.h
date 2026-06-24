@@ -20,9 +20,13 @@ private:
     int gameSpeed;
     int ranking[5];
     int frameCounter = 0;
+    float doubleTimer;
+    float shieldTimer;
 
     bool isRunning;
     bool juegoIniciado;
+    bool doubleScore;
+    bool shieldActive;
 
     float sueloX = 0.0f;
     const int GRAVITY = 1;
@@ -60,6 +64,10 @@ public:
         gameSpeed = -6;
         isRunning = true;
         juegoIniciado = false;
+        doubleScore = false;
+        shieldActive = false;
+        doubleTimer = 0;
+        shieldTimer = 0;
         currentDinoSkin = 0;
         botonPlay = { 0, 0, 0, 0 };
 
@@ -74,6 +82,11 @@ public:
 private:
     // Procesa las entradas del usuario
     void processInput();
+    void updateTimersPociones();
+    void updateObstaculos();
+    void updatePociones();
+    void aplicarPocion(PotionType tipo);
+    int puntosPorObstaculo();
     // Actualiza la lógica de todos los elementos del juego
     void update();
     // Verifica si existe colisión entre el dinosaurio y un obstáculo

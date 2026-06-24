@@ -96,10 +96,129 @@ void Juego::processInput(){
     }
 }
 
+void Juego::updateTimersPociones() {
+    float delta = GetFrameTime();
+
+    if (doubleScore) {
+        doubleTimer -= delta;
+
+        if (doubleTimer <= 0) {
+            doubleScore = false;
+            doubleTimer = 0;
+        }
+    }
+
+    if (shieldActive) {
+        shieldTimer -= delta;
+
+        if (shieldTimer <= 0) {
+            shieldActive = false;
+            shieldTimer = 0;
+        }
+    }
+}
+
+
+void Juego::updateObstaculos() {
+    for (size_t i = 0; i < obstacles.size(); i++) {
+        obstacles[i].update();
+
+        // Si el dinosaurio choca, pierde una vida
+        if (checkCollision(tRex, obstacles[i])) {
+            if (!shieldActive) {
+                lives = actualizarVidas(lives, -1);
+            }
+            obstacles.erase(obstacles.begin() + i);
+
+            if (lives <= 0) {
+                gameOver();
+            } else {
+                obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
+            }
+
+            break;
+        }
+        // Si el obstáculo sale de pantalla, se elimina y se genera otro
+        if (obstacles[i].x + obstacles[i].width < 0) {
+            obstacles.erase(obstacles.begin() + i);
+            // Obstaculos aleatorios
+            int randomTipo = GetRandomValue(0, 2);
+            obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, (ObstacleType)randomTipo));
+            if (GetRandomValue(1, 10) <= 3) { 
+                int tipoPocion = GetRandomValue(0, 2);
+                int potionX = GetRandomValue(900, 1100);
+                int potionY = GetRandomValue(GROUND_LEVEL - 140, GROUND_LEVEL - 45);
+                potions.push_back(Potion(potionX, potionY, gameSpeed, (PotionType)tipoPocion));
+            }
+            score = actualizarPuntuacion(score, puntosPorObstaculo());
+            break;
+        }
+    }
+}
+
+
+void Juego::updatePociones() {
+    for (size_t i = 0; i < potions.size(); i++) {
+        potions[i].update();
+
+        Rectangle dino = {
+            (float)tRex.x,
+            (float)tRex.y,
+            (float)tRex.width,
+            (float)tRex.height
+        };
+
+        Rectangle potion = {
+            (float)potions[i].x,
+            (float)potions[i].y,
+            (float)potions[i].width,
+            (float)potions[i].height
+        };
+
+        if (CheckCollisionRecs(dino, potion)) {
+            aplicarPocion(potions[i].type);
+            potions.erase(potions.begin() + i);
+            break;
+        }
+
+        if (potions[i].x + potions[i].width < 0) {
+            potions.erase(potions.begin() + i);
+            break;
+        }
+    }
+}
+
+
+void Juego::aplicarPocion(PotionType tipo) {
+    if (tipo == LIVES) {
+        if (lives < 3) {
+            lives = actualizarVidas(lives, 1);
+        }
+    } 
+    else if (tipo == DOUBLE) {
+        doubleScore = true;
+        doubleTimer = 5.0f;
+    } 
+    else if (tipo == SHIELD) {
+        shieldActive = true;
+        shieldTimer = 5.0f;
+    }
+}
+
+
+int Juego::puntosPorObstaculo() {
+    if (doubleScore) {
+        return 20;
+    }
+
+    return 10;
+}
+
 // Actualiza la lógica del juego, dinosaurio, suelo, obstáculos y colisiones
 void Juego::update(){
     if (juegoIniciado) {
         frameCounter++;
+        updateTimersPociones();
         tRex.update(GRAVITY, GROUND_LEVEL);
 
         // Movimiento del suelo para simular desplazamiento
@@ -108,62 +227,11 @@ void Juego::update(){
             sueloX = 0;
         }
 
-        for (size_t i = 0; i < obstacles.size(); i++) {
-            obstacles[i].update();
-
-            // Si el dinosaurio choca, pierde una vida
-            if (checkCollision(tRex, obstacles[i])) {
-                lives = actualizarVidas(lives, -1);                obstacles.erase(obstacles.begin() + i);
-
-                if (lives <= 0) {
-                    gameOver();
-                } else {
-                    obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
-                }
-
-                break;
-            }
-            // Si el obstáculo sale de pantalla, se elimina y se genera otro
-            if (obstacles[i].x + obstacles[i].width < 0) {
-                obstacles.erase(obstacles.begin() + i);
-                // Obstaculos aleatorios
-                int randomTipo = GetRandomValue(0, 2);
-                obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, (ObstacleType)randomTipo));
-                if (GetRandomValue(1, 10) <= 3) { 
-                    int tipoPocion = GetRandomValue(1, 3);
-                    // Creamos la poción (debes tener un vector de pociones declarado en Juego.h)
-                    potions.push_back(Potion(950, GROUND_LEVEL - 100, gameSpeed, (PotionType)tipoPocion)); 
-                }
-                score = actualizarPuntuacion(score, 10);
-                break;
-            }
-            for (size_t i = 0; i < potions.size(); i++) {
-                potions[i].update();
-                if (potions[i].x + potions[i].width < 0) {
-                    potions.erase(potions.begin() + i);
-                    i--;
-                }
-            }
-        }
-    }
-    for (size_t i = 0; i < potions.size(); i++) {
-    if (CheckCollisionRecs({ (float)tRex.x, (float)tRex.y, (float)tRex.width, (float)tRex.height }, 
-            { (float)potions[i].x, (float)potions[i].y, (float)potions[i].width, (float)potions[i].height })) {
-        
-        if (potions[i].type == LIVES) {
-            if (lives < 3) lives = actualizarVidas(lives, 1);// Sumar vida
-        } 
-        else if (potions[i].type == DOUBLE) {
-            // duplicar la puntuacion en ese periodo
-        } 
-        else if (potions[i].type == SHIELD) {
-            // efecto del escudo como por 5 segundos
-        }
-        potions.erase(potions.begin() + i);
-        i--;
+        updateObstaculos();
+        updatePociones();
     }
 }
-}
+
 
 // Verifica si el dinosaurio y un obstáculo se están tocando
 bool Juego::checkCollision(const Dino& d, const Obstacle& o){
@@ -239,6 +307,17 @@ void Juego::render(){
             DibujarRedimensionado(heart2Tex, -5 + (i * 30), 5, heartW, heartH, WHITE);
         }
     }
+
+    // Muestra en pantalla las pociones activas
+    if (doubleScore) {
+        DibujarRedimensionado(potionDoubleTex, 120, 10, 30, 30, WHITE);
+        DrawText(TextFormat("%.1f", doubleTimer), 155, 18, 18, DARKGRAY);
+    }
+
+    if (shieldActive) {
+        DibujarRedimensionado(potionShieldTex, 120, 45, 30, 30, WHITE);
+        DrawText(TextFormat("%.1f", shieldTimer), 155, 53, 18, DARKGRAY);
+    }
         
     // Pantalla inicial del juego
     if (!juegoIniciado) {
@@ -259,4 +338,9 @@ void Juego::gameOver() {
     score = 0;
     obstacles.clear();
     obstacles.push_back(Obstacle(650, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
+    doubleScore = false;
+    shieldActive = false;
+    doubleTimer = 0;
+    shieldTimer = 0;
+    potions.clear();
 }
