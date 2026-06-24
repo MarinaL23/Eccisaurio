@@ -16,7 +16,7 @@ Para esta segunda iteración únicamente se está utilizando C++, por lo que el 
 
 `nasm -f elf64 Funciones.asm -o Funciones.o`
 
-`g++ main.cpp Juego.cpp Funciones.o -o Eccisaurio -lraylib`
+`g++ main.cpp Juego.cpp Funciones.o Joystick.cpp -o Eccisaurio -lraylib -lX11`
 
 
 ## Instrucciones de ejecución

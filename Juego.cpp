@@ -1,7 +1,11 @@
 #include "Juego.h"
 #include "Obstacle.h"
 #include "FuncionesEnsamblador.h"
+#include "Joystick.h"
+#include <iostream>
 
+Joystick joystick;
+char estadoJoystickAnterior = 'N';
 
 // Función auxiliar para dibujar una textura con el tamaño que se indique
 void DibujarRedimensionado(Texture2D textura, float xDestino, float yDestino, float anchoDestino, float altoDestino, Color tinte) {
@@ -43,6 +47,9 @@ void Juego::run(){
     botonPlay.x = 400 - (botonPlay.width / 2);
     botonPlay.y = 250 - (botonPlay.height / 2);
 
+    if (!joystick.conectar("/dev/ttyACM0")) {
+    std::cout << "No se pudo conectar el joystick, se usara solo el teclado.\n";
+    }
     // Se crea el primer obstáculo al iniciar el juego
     if(obstacles.empty()) {
         obstacles.push_back(Obstacle(650, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
@@ -68,7 +75,8 @@ void Juego::run(){
     UnloadTexture(potionLifeTex);
     UnloadTexture(potionDoubleTex);
     UnloadTexture(potionShieldTex);
-
+    
+    joystick.desconectar();
     CloseWindow();
 }
 
@@ -84,15 +92,21 @@ void Juego::processInput(){
         }
     } else {
         // Hace saltar al dinosaurio durante la partida
-        if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP)) {
+        char estadoJoystick = joystick.leerEstado();
+        bool saltoJoystick = (estadoJoystick == 'U' && estadoJoystickAnterior != 'U');
+        bool agacharJoystick = (estadoJoystick == 'D');
+
+        if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP) || saltoJoystick) {
             tRex.jump();
         }
         // Hace que el dinosaurio se agache
-        if (IsKeyDown(KEY_DOWN)) {
+        if (IsKeyDown(KEY_DOWN) || agacharJoystick) {
             tRex.crouch(true);
         } else {
             tRex.crouch(false);
         }
+
+        estadoJoystickAnterior = estadoJoystick;
     }
 }
 
