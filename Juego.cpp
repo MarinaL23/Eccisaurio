@@ -3,6 +3,7 @@
 #include "FuncionesEnsamblador.h"
 #include "Joystick.h"
 #include <iostream>
+#include <fstream>
 
 Joystick joystick;
 char estadoJoystickAnterior = 'N';
@@ -40,6 +41,7 @@ void Juego::run(){
     heartTex = LoadTexture("png/heart.png");
     heart2Tex = LoadTexture("png/heart2.png");
     sueloTex = LoadTexture("png/road.png");
+    rankingTex = LoadTexture("png/ranking.png");
 
     // Se ajusta el tamaño y la posición del botón de inicio
     botonPlay.width = btnPlayTex.width * 0.15f;
@@ -335,6 +337,13 @@ void Juego::render(){
         
     // Pantalla inicial del juego
     if (!juegoIniciado) {
+        float rankingW = rankingTex.width * 0.15f;
+        float rankingH = rankingTex.height * 0.15f;
+        DibujarRedimensionado(rankingTex, 500, -5, rankingW, rankingH, WHITE);
+        DrawText("TOP 5 SCORES", 450, 150, 20, DARKGRAY);
+        for (int i = 0; i < 5; i++) {
+            DrawText(TextFormat("%d. %05d", i + 1, ranking[i]), 480, 180 + (i * 25), 20, DARKGRAY);
+        }
         float factorEscala = 0.25f; 
         float logoW = logoTex.width * factorEscala;
         float logoH = logoTex.height * factorEscala;
@@ -347,6 +356,7 @@ void Juego::render(){
 
 // Reinicia los valores principales cuando el jugador pierde todas las vidas
 void Juego::gameOver() {
+    ranker(score);
     juegoIniciado = false;
     lives = 3;
     score = 0;
@@ -357,4 +367,44 @@ void Juego::gameOver() {
     doubleTimer = 0;
     shieldTimer = 0;
     potions.clear();
+}
+
+void Juego::ranker(int score){
+    if (score <= ranking[4]) {
+        return;
+    }
+    for (int i = 0; i < 5; i++) {
+        if (score > ranking[i]) {
+            for (int j = 4; j > i; j--) {
+                ranking[j] = ranking[j - 1];
+            }
+            ranking[i] = score;
+            break; 
+        }
+    }
+    guardarRanking();
+}
+
+void Juego::guardarRanking() {
+    // guarda las mejores puntuaciones en un archivo de texto como historial
+    std::ofstream archivo("ranking.txt");
+    if (archivo.is_open()) {
+        for (int i = 0; i < 5; i++) {
+            archivo << ranking[i] << "\n";
+        }
+        archivo.close();
+    }
+}
+
+void Juego::cargarRanking() {
+    // carga el historial del ranking
+    std::ifstream archivo("ranking.txt");
+    if (archivo.is_open()) {
+        for (int i = 0; i < 5; i++) {
+            archivo >> ranking[i];
+        }
+        archivo.close();
+    } else {
+        for (int i = 0; i < 5; i++) ranking[i] = 0;
+    }
 }

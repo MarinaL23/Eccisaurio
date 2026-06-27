@@ -48,7 +48,8 @@ private:
     Texture2D heartTex;
     Texture2D heart2Tex;
     Texture2D sueloTex;
-
+    
+    Texture2D rankingTex;
     Texture2D scoreTex;
     Texture2D logoTex;
     Texture2D btnPlayTex;
@@ -95,6 +96,9 @@ private:
     void render();
     // Reinicia la partida cuando el jugador pierde todas las vidas
     void gameOver();
+    void ranker(int score);
+    void guardarRanking();
+    void cargarRanking();
 };
 
 #endif //JUEGO_H
