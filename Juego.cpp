@@ -59,6 +59,7 @@ void Juego::run(){
 
     // Ciclo principal del videojuego
     while (!WindowShouldClose() && isRunning) {
+        UpdateMusicStream(musica);
         processInput();
         update();
         render();

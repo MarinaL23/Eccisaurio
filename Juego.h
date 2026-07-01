@@ -58,6 +58,7 @@ private:
     int currentDinoSkin = 0;
 
 public:
+    Music musica;
     // Constructor que inicializa los valores básicos del juego
     Juego() {
         score = 0;
