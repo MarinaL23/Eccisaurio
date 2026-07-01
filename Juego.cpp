@@ -385,10 +385,14 @@ void Juego::render(){
     if (!juegoIniciado) {
         float rankingW = rankingTex.width * 0.15f;
         float rankingH = rankingTex.height * 0.15f;
-        DibujarRedimensionado(rankingTex, 500, -5, rankingW, rankingH, WHITE);
-        DrawText("TOP 5 SCORES", 450, 150, 20, DARKGRAY);
+
+        int rankingX = 590;
+        int rankingY = 115;
+
+        DibujarRedimensionado(rankingTex, rankingX - 75, rankingY - 90, rankingW, rankingH, WHITE);
+        DrawText("TOP 5 SCORES", rankingX - 10, rankingY + 30, 20, DARKGRAY);
         for (int i = 0; i < 5; i++) {
-            DrawText(TextFormat("%d. %05d", i + 1, ranking[i]), 480, 180 + (i * 25), 20, DARKGRAY);
+            DrawText(TextFormat("%d. %05d", i + 1, ranking[i]), rankingX + 10, rankingY + 60 + (i * 25), 20, DARKGRAY);
         }
         float factorEscala = 0.25f; 
         float logoW = logoTex.width * factorEscala;
