@@ -20,7 +20,8 @@ void DibujarRedimensionado(Texture2D textura, float xDestino, float yDestino, fl
 void Juego::run(){
     InitWindow(800, 400, "Eccisaurio");
     SetTargetFPS(60);
-
+    InitAudioDevice();
+    SetTargetFPS(60);
     // Carga las texturas del personaje, obstáculos, pociones e interfaz
     dinoTex = LoadTexture("png/dino.png");
     dinoCrouchTex = LoadTexture("png/agacharse.png");
@@ -78,7 +79,8 @@ void Juego::run(){
     UnloadTexture(potionLifeTex);
     UnloadTexture(potionDoubleTex);
     UnloadTexture(potionShieldTex);
-    
+    CloseAudioDevice(); 
+    CloseWindow();
     joystick.desconectar();
     CloseWindow();
 }
