@@ -134,6 +134,27 @@ void Juego::updateTimersPociones() {
     }
 }
 
+void Juego::generarObstaculos() {
+    if (obstacles.size() >= 2)
+        return;
+
+    int ultimoX = 0;
+
+    for (Obstacle o : obstacles) {
+        if (o.x > ultimoX) {
+            ultimoX = o.x;
+        }
+    }
+
+    // Si ya hay suficiente espacio, genera otro
+    if (ultimoX < 500) {
+        int distancia = GetRandomValue(450, 750);
+        int tipo = GetRandomValue(0, 2);
+        obstacles.push_back(Obstacle(ultimoX + distancia,GROUND_LEVEL,
+            gameSpeed,(ObstacleType)tipo));
+    }
+}
+
 
 void Juego::updateObstaculos() {
     for (size_t i = 0; i < obstacles.size(); i++) {
@@ -143,13 +164,14 @@ void Juego::updateObstaculos() {
         if (checkCollision(tRex, obstacles[i])) {
             if (!shieldActive) {
                 lives = actualizarVidas(lives, -1);
+            } else {
+                score = actualizarPuntuacion(score, puntosPorObstaculo());
             }
+
             obstacles.erase(obstacles.begin() + i);
 
             if (lives <= 0) {
                 gameOver();
-            } else {
-                obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
             }
 
             break;
@@ -157,14 +179,26 @@ void Juego::updateObstaculos() {
         // Si el obstáculo sale de pantalla, se elimina y se genera otro
         if (obstacles[i].x + obstacles[i].width < 0) {
             obstacles.erase(obstacles.begin() + i);
-            // Obstaculos aleatorios
-            int randomTipo = GetRandomValue(0, 2);
-            obstacles.push_back(Obstacle(850, GROUND_LEVEL, gameSpeed, (ObstacleType)randomTipo));
-            if (GetRandomValue(1, 10) <= 3) { 
-                int tipoPocion = GetRandomValue(0, 2);
+
+            if (GetRandomValue(1, 10) <= 2) { 
+
+                int randomPocion = GetRandomValue(1, 100);
+                PotionType tipoPocion;
+
+                if (randomPocion <= 20) {
+                    tipoPocion = LIVES;      // 20%
+                } 
+                else if (randomPocion <= 60) {
+                    tipoPocion = DOUBLE;     // 40%
+                } 
+                else {
+                    tipoPocion = SHIELD;     // 40%
+                }
+
                 int potionX = GetRandomValue(900, 1100);
                 int potionY = GetRandomValue(GROUND_LEVEL - 140, GROUND_LEVEL - 45);
-                potions.push_back(Potion(potionX, potionY, gameSpeed, (PotionType)tipoPocion));
+
+                potions.push_back(Potion(potionX, potionY, gameSpeed, tipoPocion));
             }
             score = actualizarPuntuacion(score, puntosPorObstaculo());
             break;
@@ -234,6 +268,7 @@ int Juego::puntosPorObstaculo() {
 void Juego::update(){
     if (juegoIniciado) {
         frameCounter++;
+        gameSpeed = calcularVelocidad(score);
         updateTimersPociones();
         tRex.update(GRAVITY, GROUND_LEVEL);
 
@@ -244,6 +279,7 @@ void Juego::update(){
         }
 
         updateObstaculos();
+        generarObstaculos();
         updatePociones();
     }
 }
@@ -251,6 +287,14 @@ void Juego::update(){
 
 // Verifica si el dinosaurio y un obstáculo se están tocando
 bool Juego::checkCollision(const Dino& d, const Obstacle& o){
+    if (o.type == BIRD) {
+        if (d.isCrouching) {
+            return false;
+        }
+        bool choqueHorizontal = d.x < o.x + o.width && d.x + d.width > o.x;
+        return choqueHorizontal;
+    }
+
     Rectangle dino = {(float)d.x, (float)d.y, (float)d.width, (float)d.height};
     Rectangle obstaculo = {(float)o.x, (float)o.y, (float)o.width, (float)o.height};
 
@@ -326,13 +370,15 @@ void Juego::render(){
 
     // Muestra en pantalla las pociones activas
     if (doubleScore) {
-        DibujarRedimensionado(potionDoubleTex, 120, 10, 30, 30, WHITE);
-        DrawText(TextFormat("%.1f", doubleTimer), 155, 18, 18, DARKGRAY);
+        DibujarRedimensionado(potionDoubleTex, 120, 10, 50, 50, WHITE);
+        DrawText("DOUBLE", 180, 10, 22, BLACK);
+        DrawText(TextFormat("%.1f s", doubleTimer), 180, 35, 24, DARKGRAY);
     }
 
     if (shieldActive) {
-        DibujarRedimensionado(potionShieldTex, 120, 45, 30, 30, WHITE);
-        DrawText(TextFormat("%.1f", shieldTimer), 155, 53, 18, DARKGRAY);
+        DibujarRedimensionado(potionShieldTex, 120, 70, 50, 50, WHITE);
+        DrawText("SHIELD", 180, 70, 22, BLACK);
+        DrawText(TextFormat("%.1f s", shieldTimer), 180, 95, 24, DARKGRAY);
     }
         
     // Pantalla inicial del juego

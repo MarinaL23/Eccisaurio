@@ -20,8 +20,8 @@ public:
         x = startX;
         y = startY;
         speedX = speed;
-        width = 45;
-        height = 45;
+        width = 55;
+        height = 55;
         type = pType;
         active = true;
     }

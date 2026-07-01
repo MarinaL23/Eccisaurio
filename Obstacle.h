@@ -35,7 +35,7 @@ public:
         else if (type == BIRD) {
             width = 50;
             height = 30;
-            y = startY - 65;
+            y = startY - 80;
         }
     }
 

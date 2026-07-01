@@ -84,6 +84,7 @@ private:
     // Procesa las entradas del usuario
     void processInput();
     void updateTimersPociones();
+    void generarObstaculos();
     void updateObstaculos();
     void updatePociones();
     void aplicarPocion(PotionType tipo);
