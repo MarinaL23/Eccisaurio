@@ -49,8 +49,8 @@ void Juego::run(){
     botonPlay.x = 400 - (botonPlay.width / 2);
     botonPlay.y = 250 - (botonPlay.height / 2);
 
-    if (!joystick.conectar("/dev/ttyACM0")) {
-    std::cout << "No se pudo conectar el joystick, se usara solo el teclado.\n";
+    if(!joystick.conectar("/dev/ttyACM0")){
+            std::cout << "No se pudo conectar el joystick, se usara solo el teclado.\n";
     }
     // Se crea el primer obstáculo al iniciar el juego
     if(obstacles.empty()) {
@@ -186,13 +186,13 @@ void Juego::updateObstaculos() {
                 PotionType tipoPocion;
 
                 if (randomPocion <= 20) {
-                    tipoPocion = LIVES;      // 20%
+                    tipoPocion = LIVES; // 20%
                 } 
                 else if (randomPocion <= 60) {
-                    tipoPocion = DOUBLE;     // 40%
+                    tipoPocion = DOUBLE;// 40%
                 } 
                 else {
-                    tipoPocion = SHIELD;     // 40%
+                    tipoPocion = SHIELD;// 40%
                 }
 
                 int potionX = GetRandomValue(900, 1100);
@@ -256,7 +256,7 @@ void Juego::aplicarPocion(PotionType tipo) {
 }
 
 
-int Juego::puntosPorObstaculo() {
+int Juego::puntosPorObstaculo(){
     if (doubleScore) {
         return 20;
     }
@@ -264,15 +264,15 @@ int Juego::puntosPorObstaculo() {
     return 10;
 }
 
-// Actualiza la lógica del juego, dinosaurio, suelo, obstáculos y colisiones
+//Actualiza la lógica del juego, dinosaurio, suelo, obstáculos y colisiones
 void Juego::update(){
-    if (juegoIniciado) {
+    if (juegoIniciado){
         frameCounter++;
         gameSpeed = calcularVelocidad(score);
         updateTimersPociones();
         tRex.update(GRAVITY, GROUND_LEVEL);
 
-        // Movimiento del suelo para simular desplazamiento
+        //Movimiento del suelo para simular desplazamiento
         sueloX += gameSpeed; 
         if (sueloX <= -800) { 
             sueloX = 0;
@@ -285,7 +285,7 @@ void Juego::update(){
 }
 
 
-// Verifica si el dinosaurio y un obstáculo se están tocando
+//Verifica si el dinosaurio y un obstáculo se están tocando
 bool Juego::checkCollision(const Dino& d, const Obstacle& o){
     if (o.type == BIRD) {
         if (d.isCrouching) {
@@ -301,7 +301,7 @@ bool Juego::checkCollision(const Dino& d, const Obstacle& o){
     return CheckCollisionRecs(dino, obstaculo);
 }
 
-// Dibuja todos los elementos del juego en pantalla
+//Dibuja todos los elementos del juego en pantalla
 void Juego::render(){
     BeginDrawing();
     ClearBackground(RAYWHITE); 
