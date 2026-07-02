@@ -8,7 +8,7 @@
 Joystick joystick;
 char estadoJoystickAnterior = 'N';
 
-// Función auxiliar para dibujar una textura con el tamaño que se indique
+//Función auxiliar para dibujar una textura con el tamaño que se indique
 void DibujarRedimensionado(Texture2D textura, float xDestino, float yDestino, float anchoDestino, float altoDestino, Color tinte) {
     Rectangle source = { 0.0f, 0.0f, (float)textura.width, (float)textura.height };
     Rectangle dest = { xDestino, yDestino, anchoDestino, altoDestino };
@@ -16,12 +16,16 @@ void DibujarRedimensionado(Texture2D textura, float xDestino, float yDestino, fl
     DrawTexturePro(textura, source, dest, origin, 0.0f, tinte);
 }
 
-// Inicializa la ventana, carga las texturas y ejecuta el ciclo principal del juego
+//Inicializa la ventana, carga las texturas y ejecuta el ciclo principal del juego
 void Juego::run(){
     InitWindow(800, 400, "Eccisaurio");
-    SetTargetFPS(60);
+    SetTraceLogLevel(LOG_INFO);
     InitAudioDevice();
+
+    musica = LoadMusicStream("music/macarena-.mp3");
+    musica.looping = true;
     SetTargetFPS(60);
+
     // Carga las texturas del personaje, obstáculos, pociones e interfaz
     dinoTex = LoadTexture("png/dino.png");
     dinoCrouchTex = LoadTexture("png/agacharse.png");
@@ -82,7 +86,6 @@ void Juego::run(){
     CloseAudioDevice(); 
     CloseWindow();
     joystick.desconectar();
-    CloseWindow();
 }
 
 // Procesa las entradas del usuario, tanto en el menú como durante la partida
@@ -94,6 +97,7 @@ void Juego::processInput(){
         if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePos, botonPlay))
             || IsKeyPressed(KEY_ENTER)) {
             juegoIniciado = true;
+            PlayMusicStream(musica); 
         }
     } else {
         // Hace saltar al dinosaurio durante la partida
@@ -409,6 +413,7 @@ void Juego::render(){
 
 // Reinicia los valores principales cuando el jugador pierde todas las vidas
 void Juego::gameOver() {
+    StopMusicStream(musica);
     ranker(score);
     juegoIniciado = false;
     lives = 3;
