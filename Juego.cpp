@@ -122,6 +122,7 @@ void Juego::processInput(){
 void Juego::updateTimersPociones() {
     float delta = GetFrameTime();
 
+    // Actualiza el tiempo restante del doble puntaje
     if (doubleScore) {
         doubleTimer -= delta;
 
@@ -131,6 +132,7 @@ void Juego::updateTimersPociones() {
         }
     }
 
+    // Actualiza el tiempo restante del escudo
     if (shieldActive) {
         shieldTimer -= delta;
 
@@ -147,6 +149,7 @@ void Juego::generarObstaculos() {
 
     int ultimoX = 0;
 
+    // Busca el obstáculo que está más adelante
     for (Obstacle o : obstacles) {
         if (o.x > ultimoX) {
             ultimoX = o.x;
@@ -232,12 +235,14 @@ void Juego::updatePociones() {
             (float)potions[i].height
         };
 
+        // Verifica si el jugador recoge una poción
         if (CheckCollisionRecs(dino, potion)) {
             aplicarPocion(potions[i].type);
             potions.erase(potions.begin() + i);
             break;
         }
 
+        // Elimina la poción cuando sale de la pantalla
         if (potions[i].x + potions[i].width < 0) {
             potions.erase(potions.begin() + i);
             break;
@@ -251,11 +256,13 @@ void Juego::aplicarPocion(PotionType tipo) {
         if (lives < 3) {
             lives = actualizarVidas(lives, 1);
         }
-    } 
+    }
+    // Activa el efecto de doble puntaje durante 5 segundos
     else if (tipo == DOUBLE) {
         doubleScore = true;
         doubleTimer = 5.0f;
-    } 
+    }
+    // Activa el escudo durante 5 segundos
     else if (tipo == SHIELD) {
         shieldActive = true;
         shieldTimer = 5.0f;
@@ -264,6 +271,7 @@ void Juego::aplicarPocion(PotionType tipo) {
 
 
 int Juego::puntosPorObstaculo(){
+    // Si el doble puntaje está activo, duplica los puntos obtenidos
     if (doubleScore) {
         return 20;
     }
@@ -432,6 +440,7 @@ void Juego::ranker(int score){
         return;
     }
     for (int i = 0; i < 5; i++) {
+        // Actualiza el ranking si el puntaje obtenido supera alguno de los existentes
         if (score > ranking[i]) {
             for (int j = 4; j > i; j--) {
                 ranking[j] = ranking[j - 1];

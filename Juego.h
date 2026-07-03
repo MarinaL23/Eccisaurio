@@ -84,11 +84,17 @@ public:
 private:
     // Procesa las entradas del usuario
     void processInput();
+    // Actualiza el tiempo restante de las pociones activas
     void updateTimersPociones();
+    // Genera nuevos obstáculos cuando hay suficiente espacio en pantalla
     void generarObstaculos();
+    // Actualiza el movimiento y las colisiones de los obstáculos
     void updateObstaculos();
+    // Actualiza el movimiento y la recolección de las pociones
     void updatePociones();
+    // Aplica el efecto correspondiente a la poción recogida
     void aplicarPocion(PotionType tipo);
+    // Devuelve la cantidad de puntos que se obtienen por superar un obstáculo
     int puntosPorObstaculo();
     // Actualiza la lógica de todos los elementos del juego
     void update();
@@ -98,8 +104,11 @@ private:
     void render();
     // Reinicia la partida cuando el jugador pierde todas las vidas
     void gameOver();
+    // Actualiza el ranking con el puntaje obtenido
     void ranker(int score);
+    // Guarda el ranking en un archivo
     void guardarRanking();
+    // Carga el ranking desde un archivo
     void cargarRanking();
 };
 
