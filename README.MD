@@ -12,11 +12,9 @@ La lógica principal del videojuego se desarrolla en C++, la interfaz gráfica s
 
 
 ## Instrucciones de compilación
-Para esta segunda iteración únicamente se está utilizando C++, por lo que el proyecto puede compilarse ejecutando el siguiente comando desde la carpeta raíz de EcciSaurio:
+Desde la carpeta raíz de EcciSaurio, compile con el siguiente comando:
 
-`nasm -f elf64 Funciones.asm -o Funciones.o`
-
-`g++ main.cpp Juego.cpp Funciones.o Joystick.cpp -o Eccisaurio -lraylib -lX11`
+`make`
 
 
 ## Instrucciones de ejecución
@@ -28,8 +26,14 @@ Una vez compilado el proyecto, ejecute el siguiente comando desde la carpeta ra�
 Al iniciar el programa se abrirá una ventana con el menú principal del juego. Para comenzar una partida, presione la tecla Enter o haga clic sobre el botón Play.
 
 ## Controles
+### Teclado
 - **Barra espaciadora o flecha hacia arriba:** saltar.
+- **Flecha hacia abajo:** agacharse.
 - **Enter:** iniciar el juego desde el menú principal.
+
+### Joystick
+- **Hacia arriba:** saltar.
+- **Hacia abajo:** agacharse.
 
 
 
