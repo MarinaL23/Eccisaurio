@@ -8,7 +8,7 @@ const int JOYSTICK_CENTER_X = 512;//Valor central del eje X
 const int JOYSTICK_CENTER_Y = 512; //Valor central del eje Y
 const int JOYSTICK_DEADZONE = 100;//zona muerta, evita lecturas inconsistentes
 
-//ESTADOS DEL JOYSTICK
+//posibles estados
 const char SALTAR = 'U';//hacia arriba
 const char BAJAR = 'D';//hacia abajo
 const char NEUTRO = 'N';
@@ -60,7 +60,7 @@ void enviarEstadoSerial(char estado) {
 }
 
 void loop() {
-    //Verifica si es momento de actualizar(cada 50ms)
+    //Verifica si es momento de actualizar, se realiza cada 50 milisegundos
     unsigned long tiempoActual = millis();
     
     if (tiempoActual - ultimaActualizacion >= INTERVALO_ACTUALIZACION) {

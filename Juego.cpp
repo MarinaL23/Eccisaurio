@@ -120,6 +120,7 @@ void Juego::processInput(){
         if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePos, botonPlay))
             || IsKeyPressed(KEY_ENTER)) {
             juegoIniciado = true;
+            estaMuerto = false;
             PlayMusicStream(musica); 
         }
     } else {
@@ -329,11 +330,9 @@ void Juego::update(){
 //Verifica si el dinosaurio y un obstáculo se están tocando
 bool Juego::checkCollision(const Dino& d, const Obstacle& o){
     if (o.type == BIRD) {
-        if (d.isCrouching) {
+        if (d.isCrouching && d.y >= GROUND_LEVEL - 20) {  // Solo evita si está agachado EN EL SUELO
             return false;
         }
-        bool choqueHorizontal = d.x < o.x + o.width && d.x + d.width > o.x;
-        return choqueHorizontal;
     }
 
     Rectangle dino = {(float)d.x, (float)d.y, (float)d.width, (float)d.height};
@@ -354,7 +353,10 @@ void Juego::render(){
     // Dibujo del dinosaurio
     float dinoW = dinoTex.width * 0.08f;
     float dinoH = dinoTex.height * 0.08f;
-    if (tRex.isCrouching) {
+    if (estaMuerto) {
+        // Si el dinosaurio muere, se dibuja su textura de muerte de forma prioritaria
+        DibujarRedimensionado(dinoDeathTex, tRex.x, tRex.y, dinoW, dinoH + 10, WHITE);
+    } else if (tRex.isCrouching) {
         // Aquí cargarías o usarías la textura agachada (dinoCrouchTex)
         DibujarRedimensionado(dinoCrouchTex, tRex.x, tRex.y, dinoW, dinoH - 12, WHITE);
     } else {
@@ -463,6 +465,8 @@ void Juego::gameOver() {
     StopMusicStream(musica);
     PlaySound(sonidoMuerte);
     gameOverActivo = true;
+    ranker(score);
+    estaMuerto = true;
 }
 
 void Juego::ranker(int score){

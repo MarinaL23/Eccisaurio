@@ -51,7 +51,7 @@ bool Joystick::conectar(const char* puerto) {
         return false;
     }
     
-    tcflush(descriptorPuerto, TCIFLUSH);//elimina datos previos)
+    tcflush(descriptorPuerto, TCIFLUSH);//elimina datos previos
 
     
     std::cout << "El Joystick ha sido conectado de forma exitosa en el puerto: " << puerto << std::endl;
