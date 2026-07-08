@@ -27,6 +27,7 @@ private:
     bool juegoIniciado;
     bool doubleScore;
     bool shieldActive;
+    bool gameOverActivo;
 
     float sueloX = 0.0f;
     const int GRAVITY = 1;
@@ -58,6 +59,7 @@ private:
     int currentDinoSkin = 0;
 
 public:
+    Sound sonidoMuerte;
     Music musica;
     // Constructor que inicializa los valores básicos del juego
     Juego() {
@@ -68,6 +70,7 @@ public:
         juegoIniciado = false;
         doubleScore = false;
         shieldActive = false;
+        gameOverActivo = false;
         doubleTimer = 0;
         shieldTimer = 0;
         currentDinoSkin = 0;

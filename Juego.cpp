@@ -24,6 +24,7 @@ void Juego::run(){
 
     musica = LoadMusicStream("music/macarena-.mp3");
     musica.looping = true;
+    sonidoMuerte = LoadSound("music/gameOver.wav");
     SetTargetFPS(60);
 
     // Carga las texturas del personaje, obstáculos, pociones e interfaz
@@ -83,6 +84,8 @@ void Juego::run(){
     UnloadTexture(potionLifeTex);
     UnloadTexture(potionDoubleTex);
     UnloadTexture(potionShieldTex);
+    UnloadMusicStream(musica);
+    UnloadSound(sonidoMuerte);
     CloseAudioDevice(); 
     CloseWindow();
     joystick.desconectar();
@@ -90,6 +93,26 @@ void Juego::run(){
 
 // Procesa las entradas del usuario, tanto en el menú como durante la partida
 void Juego::processInput(){
+    if (gameOverActivo) {
+        if (IsKeyPressed(KEY_ENTER)) {
+            ranker(score);
+            juegoIniciado = false;
+            gameOverActivo = false;
+            lives = 3;
+            score = 0;
+            obstacles.clear();
+            obstacles.push_back(Obstacle(650, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
+            potions.clear();
+
+            doubleScore = false;
+            shieldActive = false;
+            doubleTimer = 0;
+            shieldTimer = 0;
+        }
+
+        return;
+    }
+
     if (!juegoIniciado) {
         Vector2 mousePos = GetMousePosition();
 
@@ -281,6 +304,9 @@ int Juego::puntosPorObstaculo(){
 
 //Actualiza la lógica del juego, dinosaurio, suelo, obstáculos y colisiones
 void Juego::update(){
+    if (gameOverActivo) {
+        return;
+    }
     if (juegoIniciado){
         frameCounter++;
         gameSpeed = calcularVelocidad(score);
@@ -416,23 +442,27 @@ void Juego::render(){
         DibujarRedimensionado(btnPlayTex, botonPlay.x, botonPlay.y, botonPlay.width, botonPlay.height, WHITE);
     }
 
+    // Pantalla de game over
+    if (gameOverActivo) {
+        DrawRectangle(0, 0, 800, 400, Fade(BLACK, 0.6f));
+
+        float muertoW = dinoDeathTex.width * 0.10f;
+        float muertoH = dinoDeathTex.height * 0.10f;
+        DibujarRedimensionado(dinoDeathTex, 310, 60, muertoW, muertoH, WHITE);
+
+        DrawText("GAME OVER", 285, 170, 40, RED);
+        DrawText(TextFormat("PUNTAJE: %05d", score), 275, 220, 30, WHITE);
+        DrawText("Presione ENTER para continuar", 200, 280, 25, LIGHTGRAY);
+    }
+
     EndDrawing();
 }
 
 // Reinicia los valores principales cuando el jugador pierde todas las vidas
 void Juego::gameOver() {
     StopMusicStream(musica);
-    ranker(score);
-    juegoIniciado = false;
-    lives = 3;
-    score = 0;
-    obstacles.clear();
-    obstacles.push_back(Obstacle(650, GROUND_LEVEL, gameSpeed, CACTUS_SMALL));
-    doubleScore = false;
-    shieldActive = false;
-    doubleTimer = 0;
-    shieldTimer = 0;
-    potions.clear();
+    PlaySound(sonidoMuerte);
+    gameOverActivo = true;
 }
 
 void Juego::ranker(int score){
