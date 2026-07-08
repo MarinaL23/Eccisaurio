@@ -61,6 +61,7 @@ private:
 
 public:
     Sound sonidoMuerte;
+    Sound sonidoChoque;
     Music musica;
     // Constructor que inicializa los valores básicos del juego
     Juego() {

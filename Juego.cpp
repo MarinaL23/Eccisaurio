@@ -25,6 +25,7 @@ void Juego::run(){
     musica = LoadMusicStream("music/macarena-.mp3");
     musica.looping = true;
     sonidoMuerte = LoadSound("music/gameOver.wav");
+    sonidoChoque = LoadSound("music/hit.wav");
     SetTargetFPS(60);
 
     // Carga las texturas del personaje, obstáculos, pociones e interfaz
@@ -86,7 +87,8 @@ void Juego::run(){
     UnloadTexture(potionShieldTex);
     UnloadMusicStream(musica);
     UnloadSound(sonidoMuerte);
-    CloseAudioDevice(); 
+    UnloadSound(sonidoChoque);
+    CloseAudioDevice();
     CloseWindow();
     joystick.desconectar();
 }
@@ -197,6 +199,7 @@ void Juego::updateObstaculos() {
         // Si el dinosaurio choca, pierde una vida
         if (checkCollision(tRex, obstacles[i])) {
             if (!shieldActive) {
+                PlaySound(sonidoChoque);
                 lives = actualizarVidas(lives, -1);
             } else {
                 score = actualizarPuntuacion(score, puntosPorObstaculo());
